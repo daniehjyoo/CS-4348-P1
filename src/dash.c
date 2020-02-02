@@ -9,13 +9,13 @@
 #include <fcntl.h>
 
 // global variables
-void interactive();
+void interactive_mode();
 void batch_mode(char*);
 void printErrorMessage();
-char *saveptr0 = NULL, *saveptr1 = NULL, *saveptr2 = NULL, *saveptr3 = NULL; 
+char *saveptr_zero = NULL, *saveptr_one = NULL, *saveptr_two = NULL, *saveptr_three = NULL; 
 char delim[] = " \t\r\n\v\f";
-char *rdOut = ">";
-char *ampersand = "&\n";
+char *readOutSymbol = ">";
+char *ampersandSymbol = "&\n";
 char slashSymbol[] = "/";
 char error_message[25] = "Something went wrong...\n";
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	if(argc == 1) 
-		interactive();
+		interactive_mode();
 	if(argc == 2) 
 		batch_mode(argv[1]);
 	
@@ -61,8 +61,9 @@ int contains(char *string1, char *string2)
 		return 0;
 	
 }
-// interactive mode
-void interactive()
+
+// interactive_mode mode
+void interactive_mode()
 {
 	// allocate memory, we have to cast it as a char pointer because if we 
 	// dont than the compiler has warnings. malloc is a function that creates 
@@ -80,19 +81,19 @@ void interactive()
 		// It returns a token, the first param is the string to be broken up into tokens
 		// The second parameter is what is seperating each token
 		char *inputString = reader();
-		char *ampersandc = strtok_r(inputString, ampersand, &saveptr0);
-		while(ampersandc != NULL)
+		char *ampersandSymbolc = strtok_r(inputString, ampersandSymbol, &saveptr_zero);
+		while(ampersandSymbolc != NULL)
 		{
-			char *command = malloc(strlen(ampersandc) + 1);
-			strcpy(command, ampersandc);
+			char *command = malloc(strlen(ampersandSymbolc) + 1);
+			strcpy(command, ampersandSymbolc);
 			// check for '>'
-			if(contains(command, rdOut) == 1)
+			if(contains(command, readOutSymbol) == 1)
 			{
-				char *tokenRd = strtok_r(command, rdOut, &saveptr1);
-				if(contains(saveptr1, rdOut) == 1)
+				char *tokenRd = strtok_r(command, readOutSymbol, &saveptr_one);
+				if(contains(saveptr_one, readOutSymbol) == 1)
 				{
 					printErrorMessage();
-					ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+					ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 					continue;
 				}
 				char *remainder = malloc(strlen(tokenRd) + 1);
@@ -102,37 +103,37 @@ void interactive()
 				strcpy(temp, command);
 
 				int num_commands = 0;
-				char *token = strtok_r(temp, delim, &saveptr2);
+				char *token = strtok_r(temp, delim, &saveptr_two);
 				if(token == NULL)
 				{
-					ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+					ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 					continue;
 				}
-				while((token = strtok_r(NULL, delim, &saveptr2)) != NULL)
+				while((token = strtok_r(NULL, delim, &saveptr_two)) != NULL)
 					num_commands++;
 				// appends the string pointed to by the first parameter, it appends
 				// whatever is in the second paramter
-				tokenRd = strtok_r(NULL, strcat(delim, rdOut), &saveptr1);
+				tokenRd = strtok_r(NULL, strcat(delim, readOutSymbol), &saveptr_one);
 				if(tokenRd == NULL)
 				{
 					printErrorMessage();
-					ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+					ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 					continue;
 				}
 				char *output = malloc(strlen(tokenRd) + 1);
 				strcpy(output, tokenRd);
 				
-				tokenRd = strtok_r(NULL, strcat(delim, rdOut), &saveptr1);
+				tokenRd = strtok_r(NULL, strcat(delim, readOutSymbol), &saveptr_one);
 				if(tokenRd != NULL)
 				{
 					printErrorMessage();
-					ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+					ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 					continue;
 				}
 				
 				// set output for redirection
-				//printf("FileNameOut = %s\n", fileNameOut);
-				//printf("FileNameError = %s\n", fileNameError);
+				// printf("FileNameOut = %s\n", fileNameOut);
+				// printf("FileNameError = %s\n", fileNameError);
 				
 				// opens a file, if it successfully open/create file than it will return 0 otherwise -1
 				// CREATE - creates the file, 0_TRUNC - overrides the file
@@ -153,13 +154,13 @@ void interactive()
 				close(out);
 
 				// check for builtin commands
-				token = strtok_r(remainder, delim, &saveptr1);
+				token = strtok_r(remainder, delim, &saveptr_one);
 				if (strcmp(token,"exit") == 0)
 				{
 					if(num_commands != 0)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 					else
@@ -170,12 +171,12 @@ void interactive()
 					if(num_commands != 1)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 					else
 					{
-						token = strtok_r(NULL, delim, &saveptr1);
+						token = strtok_r(NULL, delim, &saveptr_one);
 						if(token != NULL)
 							chdir(token);
 					}
@@ -184,7 +185,7 @@ void interactive()
 				{
 					pathArray = malloc(8 * (num_commands + 1));
 					int i = 0;
-					token = strtok_r(NULL, delim, &saveptr1);
+					token = strtok_r(NULL, delim, &saveptr_one);
 					while(token != NULL)
 					{
 						pathArray[i] = malloc(strlen(token) + 1);
@@ -221,7 +222,7 @@ void interactive()
 						args[0] = malloc(strlen(token) + 1);
 						strcpy(args[0], token);
 						int j = 1;
-						while((token = strtok_r(NULL, delim, &saveptr1)) != NULL)
+						while((token = strtok_r(NULL, delim, &saveptr_one)) != NULL)
 						{
 							args[j] = malloc(1+strlen(token));
 							strcpy(args[j], token);
@@ -250,7 +251,7 @@ void interactive()
 					if(checkPath == 0)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 				}
@@ -266,7 +267,7 @@ void interactive()
 				char *token = strtok_r(temp, delim, &p2);
 				if(token == NULL)
 				{
-					ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+					ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 					continue;
 				}
 				while((token = strtok_r(NULL, delim, &p2)) != NULL)
@@ -287,7 +288,7 @@ void interactive()
 					if(num_commands != 1)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 					else
@@ -360,7 +361,7 @@ void interactive()
 					}
 				}
 			}
-			ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+			ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 		}
     }
 }
@@ -386,14 +387,14 @@ void batch_mode(char *file)
 		{
 			if(inputString[0] == '\n') 
 				continue;
-			char *ampersandc = strtok_r(inputString, ampersand, &saveptr0);
-			while(ampersandc != NULL)
+			char *ampersandSymbolc = strtok_r(inputString, ampersandSymbol, &saveptr_zero);
+			while(ampersandSymbolc != NULL)
 			{
-				char *command = malloc(strlen(ampersandc) + 1);
-				strcpy(command, ampersandc);
-				if(contains(command, rdOut) == 1)
+				char *command = malloc(strlen(ampersandSymbolc) + 1);
+				strcpy(command, ampersandSymbolc);
+				if(contains(command, readOutSymbol) == 1)
 				{
-					char *tokenRD = strtok_r(command, rdOut, &saveptr1);
+					char *tokenRD = strtok_r(command, readOutSymbol, &saveptr_one);
 					char *remainder = malloc(strlen(tokenRD) + 1);
 					strcpy(remainder, tokenRD);
 					char *temp = malloc(strlen(remainder) + 1);
@@ -401,38 +402,38 @@ void batch_mode(char *file)
 					
 					
 
-					if(contains(saveptr1, rdOut) == 1)
+					if(contains(saveptr_one, readOutSymbol) == 1)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
-					tokenRD = strtok_r(NULL, strcat(delim, rdOut), &saveptr1);
+					tokenRD = strtok_r(NULL, strcat(delim, readOutSymbol), &saveptr_one);
 					if(tokenRD == NULL)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 
 					char *output = malloc(1+strlen(tokenRD));
 					strcpy(output, tokenRD);
 
-					if((tokenRD = strtok_r(NULL, strcat(delim, rdOut), &saveptr1)) != NULL)
+					if((tokenRD = strtok_r(NULL, strcat(delim, readOutSymbol), &saveptr_one)) != NULL)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 
 					int num_commands = 0;
-					char *token = strtok_r(remainder, delim, &saveptr3);
+					char *token = strtok_r(remainder, delim, &saveptr_three);
 					if(token == NULL)
 					{
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
-					while((token = strtok_r(NULL, delim, &saveptr3)) != NULL)
+					while((token = strtok_r(NULL, delim, &saveptr_three)) != NULL)
 						num_commands++;
 					
 					//printf("FileNameOut = %s\n", fileNameOut);
@@ -446,7 +447,7 @@ void batch_mode(char *file)
 					if (out == -1)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 
@@ -455,13 +456,13 @@ void batch_mode(char *file)
 					if (dup2(out, fileno(stdout)) == -1)
 					{	
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 					if (dup2(out, fileno(stderr)) == -1)
 					{
 						printErrorMessage();
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
 
@@ -469,13 +470,13 @@ void batch_mode(char *file)
 					fflush(stderr);
 					close(out);
 
-					token = strtok_r(temp, delim, &saveptr2);
+					token = strtok_r(temp, delim, &saveptr_two);
 					if (strcmp(token,"exit") == 0)
 					{
 						if( num_commands != 0 )
 						{
 							printErrorMessage();
-							ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+							ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 							continue;
 						}
 						else
@@ -483,16 +484,16 @@ void batch_mode(char *file)
 					}
 					else if (strcmp(token,"cd") == 0)
 					{
-						//changeDirectory(*token, ampersand, delim, saveptr0, saveptr2, num_commands);
+						//changeDirectory(*token, ampersandSymbol, delim, saveptr_zero, saveptr_two, num_commands);
 						if(num_commands != 1)
 						{
 							printErrorMessage();
-							ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+							ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 							continue;
 						}
 						else
 						{
-							token = strtok_r(NULL, delim, &saveptr2);
+							token = strtok_r(NULL, delim, &saveptr_two);
 							chdir(token);
 						}
 					}
@@ -500,7 +501,7 @@ void batch_mode(char *file)
 					{
 						pathArray = malloc(sizeof(char *) * (num_commands + 1));
 						int i = 0;
-						while((token = strtok_r(NULL, delim, &saveptr2)) != NULL)
+						while((token = strtok_r(NULL, delim, &saveptr_two)) != NULL)
 						{
 							pathArray[i] = malloc(strlen(token) + 1);
 							strcpy(pathArray[i], token);
@@ -533,7 +534,7 @@ void batch_mode(char *file)
 							args[0] = malloc(strlen(token) + 1);
 							strcpy(args[0], token);
 							int j = 1;
-							while((token = strtok_r(NULL, delim, &saveptr2)) != NULL)
+							while((token = strtok_r(NULL, delim, &saveptr_two)) != NULL)
 							{
 								args[j] = malloc(strlen(token) + 1);
 								strcpy(args[j], token);
@@ -569,15 +570,15 @@ void batch_mode(char *file)
 					char *temp = malloc(strlen(command) + 1);
 					strcpy(temp, command);
 					int num_commands = 0;
-					char *token = strtok_r(command, delim, &saveptr2);
+					char *token = strtok_r(command, delim, &saveptr_two);
 					if(token == NULL)
 					{
-						ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+						ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 						continue;
 					}
-					while((token = strtok_r(NULL, delim, &saveptr2)) != NULL)
+					while((token = strtok_r(NULL, delim, &saveptr_two)) != NULL)
 						num_commands++;
-					token = strtok_r(temp, delim, &saveptr3);
+					token = strtok_r(temp, delim, &saveptr_three);
 					if (strcmp(token,"exit") == 0)
 					{
 						if(num_commands != 0)
@@ -593,7 +594,7 @@ void batch_mode(char *file)
 							{
 								printErrorMessage();
 							}
-							token = strtok_r(NULL, delim, &saveptr3);
+							token = strtok_r(NULL, delim, &saveptr_three);
 							if(token != NULL)
 								chdir(token);
 						}
@@ -601,7 +602,7 @@ void batch_mode(char *file)
 					{
 						pathArray = malloc(sizeof(char *) * (num_commands + 1));
 						int i = 0;
-						while((token = strtok_r(NULL, delim, &saveptr3)) != NULL)
+						while((token = strtok_r(NULL, delim, &saveptr_three)) != NULL)
 						{
 							pathArray[i] = malloc(strlen(token) + 1);
 							strcpy(pathArray[i], token);
@@ -634,7 +635,7 @@ void batch_mode(char *file)
 							args[0] = malloc(strlen(token) + 1);
 							strcpy(args[0], token);
 							int j = 1;
-							while((token = strtok_r(NULL, delim, &saveptr3)) != NULL)
+							while((token = strtok_r(NULL, delim, &saveptr_three)) != NULL)
 							{
 								args[j] = malloc(strlen(token) + 1);
 								strcpy(args[j], token);
@@ -657,7 +658,7 @@ void batch_mode(char *file)
 						}
 					}
 				}
-				ampersandc = strtok_r(NULL, ampersand, &saveptr0);
+				ampersandSymbolc = strtok_r(NULL, ampersandSymbol, &saveptr_zero);
 			}
 		}
 }
